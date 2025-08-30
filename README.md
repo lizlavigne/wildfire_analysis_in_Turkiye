@@ -32,7 +32,7 @@ Here are some screenshots to give you a better idea of the application's interfa
 
 ### ![5-Day Risk Forecast](assets/capture_20250830162823763.bmp)
 
-### ![Weather Factors Graph](assets/capture_20250830162831825.bmp)
+### ![Weather Factors Graph](assets/capture_20250830162831825.jpg)
 
 ### ![Wildfire Locations Map](assets/capture_20250830162748054.bmp)
 
