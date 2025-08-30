@@ -1,5 +1,5 @@
 # Wildfire analysis in Türkiye
-Due to the frequent wildfires in Turkey, we were developed that analysis project by Filiz Buzkıran (@lizlavigne) ,  Göknil Bilge (@GoknilBilge) and Ada Erkan (@adaerkn).
+Due to the frequent wildfires in Turkey, we were developed that analysis project by **Filiz Buzkıran (@lizlavigne) ,  Göknil Bilge (@GoknilBilge) and Ada Erkan (@adaerkn)**.
 
 
 ## Key Features
