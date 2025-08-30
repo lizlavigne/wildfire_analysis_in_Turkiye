@@ -12,17 +12,17 @@ Due to the frequent wildfires in Turkey, we were developed that analysis project
 
 ## Project Structure
 
-* `main.py`: This script handles the core machine learning workflow. It loads and preprocesses data, trains the Random Forest model, and saves the trained model to a `.pkl` file for later use.
-* `app1.py`: The main application file. It loads the pre-trained model, interacts with the OpenWeatherMap API, calculates the fire risk, and visualizes the results using Streamlit and Folium.
+* `training_model.py`: This script handles the core machine learning workflow. It loads and preprocesses data, trains the Random Forest model, and saves the trained model to a `.pkl` file for later use.
+* `app.py`: The main application file. It loads the pre-trained model, interacts with the OpenWeatherMap API, calculates the fire risk, and visualizes the results using Streamlit and Folium.
 * `yangin_ve_hava_verisi.csv`: A dataset containing historical fire and weather information used to train the machine learning model.
-* `orman_yangini_model.pkl`: The serialized machine learning model, created by `main.py` and used by `app1.py` for making predictions.
+* `orman_yangini_model.pkl`: The serialized machine learning model, created by `training_model.py` and used by `app.py` for making predictions.
 
 
 ## How to use
 
 1. Please download the **zip document** and open to use in your IDE tools.
-2. `main.py`: This document includes that csv document for the model training.
-3. `app1.py`: The file is needed to run our interface. You can immidiatly run the file by typing **"streamlit run app1.py"** in the locale. This command redirects to the website.
+2. `training_model.py`: This document includes that csv document for the model training.
+3. `app.py`: The file is needed to run our interface. You can immidiatly run the file by typing **"streamlit run app.py"** in the locale. This command redirects to the website.
 
 
 ## Application Screenshots
