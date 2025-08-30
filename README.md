@@ -20,7 +20,7 @@ Due to the frequent wildfires in Turkey, we were developed that analysis project
 
 ## How to use
 
-1. Please download the **zip document** and open to use in your IDE tools.
+1. Please download the **wildfire_Turkey.zip document** and open to use in your IDE tools.
 2. `training_model.py`: This document includes that csv document for the model training.
 3. `app.py`: The file is needed to run our interface. You can immidiatly run the file by typing **"streamlit run app.py"** in the locale. This command redirects to the website.
 
