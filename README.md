@@ -24,6 +24,18 @@ Due to the frequent wildfires in Turkey, we were developed that analysis project
 2. `main.py`: This document includes that csv document for the model training.
 3. `app1.py`: The file is needed to run our interface. You can immidiatly run the file by typing **"streamlit run app1.py"** in the locale. This command redirects to the website.
 
+
+## Application Screenshots
+Here are some screenshots to give you a better idea of the application's interface:
+
+### ![Current Weather and Risk Prediction](capture_20250830162805075.bmp)
+
+### ![5-Day Risk Forecast](capture_20250830162823763.bmp)
+
+### ![Weather Factors Graph](capture_20250830162831825.bmp)
+
+### ![Wildfire Locations Map](capture_20250830162748054.bmp)
+
 ## Data Source
 
 The project uses a custom dataset (`yangin_ve_hava_verisi.csv`) that combines historical fire occurrences with corresponding weather data. This data forms the basis for the machine learning model's training.
