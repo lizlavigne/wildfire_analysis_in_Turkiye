@@ -2,7 +2,7 @@
 
 Türkiye'de yaşanan sık orman yangınları nedeniyle bu analiz projesi **Filiz Buzkıran (@lizlavigne), Göknil Bilge (@GoknilBilge) ve Ada Erkan (@adaerkn)** tarafından geliştirilmiştir.
 
-Bu proje, Türkiye'deki orman yangınlarının riskini tahmin etmek için tasarlanmış ileri düzey bir makine öğrenimi uygulamasıdır. Tarihi yangın ve meteorolojik veriler üzerinde eğitilmiş bir **Random Forest Classifier** modeli kullanarak gerçek zamanlı ve 5 günlük risk tahmini sağlar. Uygulama, etkileşimli bir kullanıcı arayüzü için **Streamlit** ile, coğrafi görselleştirmeler için ise Folium ile geliştirilmiştir.
+Bu proje, Türkiye'deki orman yangınlarının riskini tahmin etmek için tasarlanmış ileri düzey bir makine öğrenimi uygulamasıdır. Tarihi yangın ve meteorolojik veriler üzerinde eğitilmiş bir **Random Forest Classifier** modeli kullanarak gerçek zamanlı ve 5 günlük risk tahmini sağlar. Uygulamamız, etkileşimli bir kullanıcı arayüzü için **Streamlit** ile, coğrafi görselleştirmeler için ise Folium ile geliştirilmiştir.
 
 ## Temel Özellikler
 * ***Makine Öğrenimi Tahminleri:*** Tarihsel yangın ve hava verileri üzerinde eğitilmiş bir Random **Forest Classifier** modeli ile orman yangını olasılığı tahmin edilir.
@@ -24,13 +24,13 @@ tarafından tahmin yapmak için kullanılan serileştirilmiş makine öğrenimi 
 
 ## Nasıl Kullanılır
 
-Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kullanır. Uygulamayı sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları izleyin:
+Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kullanır. Uygulamamızı sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları izleyin:
 
 1. ***Git LFS'i Kurun:*** Terminalinizde aşağıdaki komutu çalıştırarak sisteminizde Git LFS'in kurulu olduğundan emin olun.
 
    `git lfs install`
    
-2. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. Git LFS, büyük dosyaların indirilmesini otomatik olarak halledecektir.
+2. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. 
 
   `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
   
