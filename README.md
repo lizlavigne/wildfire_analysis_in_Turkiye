@@ -46,7 +46,7 @@ Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kul
 
    `pip install -r requirements.txt`
     
-  * **3.2 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. (pandas ve sklearn modülleri indirilmiş olmalı değilse lütfen önce onu indirin)
+  * **3.2 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. (gerekli modüller önceki adımdadır, lütfen önce onu uygulayın)
     
  `python training_model.py`
 
