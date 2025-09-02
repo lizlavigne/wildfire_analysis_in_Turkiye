@@ -38,11 +38,13 @@ Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kul
  
  `cd wildfire_analysis_in_Turkiye`
 
-  * **3.1 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. 
+  * **3.1 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür.
+    
  `python training_model.py`
 
   * **3.2 Arayüzü Başlatın:**
-Bu komut, uygulamayı  web tarayıcınızda açacaktır.   
+Bu komut, uygulamayı  web tarayıcınızda açacaktır.
+
  `streamlit run app.py`
 
 
@@ -85,17 +87,22 @@ This project is an advanced machine learning application designed to predict the
 This project uses **Git LFS (Large File Storage)** to handle large files. To run the application smoothly, follow these steps:
 
 1. ***Install Git LFS:*** Ensure Git LFS is installed on your system by running the following command in your terminal.
+   
     `git lfs install`
 
 2. ***Clone the Repository:*** Clone the repository as you normally would. Git LFS will automatically handle the download of the large files.
+ 
     `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
 
 3. ***Run the Application:*** Navigate to the project directory.
+ 
     `cd wildfire_analysis_in_Turkiye`
 
     * **3.1 Train the Model:** If you want to retrain the model with your own data or update the existing one, run the following command. The result will be an updated, trained model.
+    
     `python training_model.py`
 
     * **3.2 Launch the Interface:**
     This command will open the application in your web browser.
+    
     `streamlit run app.py` 
