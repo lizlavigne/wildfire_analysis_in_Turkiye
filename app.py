@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 """
 Orman Yangını Risk Tahmin Uygulaması - Streamlit
 Gelişmiş Versiyon: Grafik + 5 Günlük Risk Tahmini
@@ -17,24 +17,34 @@ from folium.plugins import MarkerCluster
 # ------------------------------
 # 1️⃣ Modeli Yükle
 # ------------------------------
-try:
-    with open("orman_yangini_model.pkl", "rb") as file:
-        model = pickle.load(file)
-except FileNotFoundError:
-    st.error("Model dosyası 'orman_yangini_model.pkl' bulunamadı. Lütfen önce 'model_hazirlama.py' çalıştırın.")
-    st.stop()
+@st.cache_resource
+def load_model():
+    try:
+        with open("orman_yangini_model.pkl", "rb") as file:
+            return pickle.load(file)
+    except FileNotFoundError:
+        st.error("Model dosyası 'orman_yangini_model.pkl' bulunamadı.")
+        st.stop()
+        
+@st.cache_data
+def load_fire_data():
+    try:
+        data = pd.read_csv("tüm_veriler_birlesik_2020-2024.csv")
+        data = data.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+        return data
+    except FileNotFoundError:
+        st.error("Veri dosyası 'tüm_veriler_birlesik_2020-2024.csv' bulunamadı.")
+        st.stop()
 
-try:
-    fire_data_df = pd.read_csv("tüm_veriler_birlesik_2020-2024.csv")
-    fire_data_df = fire_data_df.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
-except FileNotFoundError:
-    st.error("Veri dosyası 'tüm_veriler_birlesik_2020-2024.csv' bulunamadı. Lütfen dosya yolunu kontrol edin.")
-    st.stop()
+model = load_model()
+fire_data_df = load_fire_data()
+
 # ------------------------------
 # 2️⃣ Hava Durumu Fonksiyonları
 # ------------------------------
 API_KEY = "e2cc91b090f4fdecb8b0aea827458fc6"
 
+@st.cache_data(ttl=3600)
 def get_current_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
     try:
@@ -56,6 +66,8 @@ def get_current_weather(city):
     except requests.exceptions.ConnectionError:
         return "ConnectionError"
 
+
+@st.cache_data(ttl=3600)
 def get_5day_forecast(city):
     url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
     try:
