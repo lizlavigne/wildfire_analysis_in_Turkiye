@@ -30,15 +30,21 @@ Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kul
 
    `git lfs install`
    
-3. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. Git LFS, büyük dosyaların indirilmesini otomatik olarak halledecektir.
+2. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. Git LFS, büyük dosyaların indirilmesini otomatik olarak halledecektir.
 
   `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
   
-3. ***Uygulamayı Çalıştırın:*** Proje dizinine gidin ve Streamlit uygulamasını başlatın.
+3. ***Uygulamayı Çalıştırın:*** Proje dizinine gidin.
  
- `cd wildfire_analysis_in_Turkiye streamlit run app.py`
-      
+ `cd wildfire_analysis_in_Turkiye`
+
+  * **3.1 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. 
+ `python training_model.py`
+
+  * **3.2 Arayüzü Başlatın:**
 Bu komut, uygulamayı  web tarayıcınızda açacaktır.   
+ `streamlit run app.py`
+
 
 ## Application Screenshots
 Here are some screenshots to give you a better idea of the application's interface:
@@ -74,15 +80,22 @@ This project is an advanced machine learning application designed to predict the
 * `orman_yangini_model.pkl`: The serialized machine learning model, created by `training_model.py` and used by `app.py` for making predictions.
 
 
-## How to use
+## How to Use
 
-This project uses Git LFS (Large File Storage) to handle large files. To run the project smoothly, follow these steps:
+This project uses **Git LFS (Large File Storage)** to handle large files. To run the application smoothly, follow these steps:
 
 1. ***Install Git LFS:*** Ensure Git LFS is installed on your system by running the following command in your terminal.
- `git lfs install`
+    `git lfs install`
+
 2. ***Clone the Repository:*** Clone the repository as you normally would. Git LFS will automatically handle the download of the large files.
     `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
-3. ***Run the Application:*** Navigate to the project directory and launch the Streamlit application.
-     `cd wildfire_analysis_in_Turkiye
-      streamlit run app.py`
-This command will open the app in your default web browser.   
+
+3. ***Run the Application:*** Navigate to the project directory.
+    `cd wildfire_analysis_in_Turkiye`
+
+    * **3.1 Train the Model:** If you want to retrain the model with your own data or update the existing one, run the following command. The result will be an updated, trained model.
+    `python training_model.py`
+
+    * **3.2 Launch the Interface:**
+    This command will open the application in your web browser.
+    `streamlit run app.py` 
