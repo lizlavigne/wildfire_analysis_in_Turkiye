@@ -193,6 +193,14 @@ else:
 st.markdown("---")
 st.header(f"{secilen_sehir} ve Çevresinde Yangın Olayları")
 
+all_years = sorted(fire_data_df['acq_date'].dt.year.unique())
+
+selected_years = st.multiselect(
+    "Görüntülenecek Yılları Seçin:",
+    options=all_years,
+    default=all_years 
+)
+
 sehir_lat, sehir_lon = city_coords[secilen_sehir]
 m = folium.Map(location=[sehir_lat, sehir_lon], zoom_start=9)
 
@@ -209,21 +217,24 @@ if current_weather and current_weather != "ConnectionError":
         fill_color=risk_color, fill_opacity=0.4, tooltip=f"Tahmini Risk: %{prob * 100:.2f}"
     ).add_to(m)
 
-filtered_df = fire_data_df[
-    (fire_data_df['lat'] > sehir_lat - 1) & (fire_data_df['lat'] < sehir_lat + 1) &
-    (fire_data_df['lon'] > sehir_lon - 1) & (fire_data_df['lon'] < sehir_lon + 1)
-    ]
+filtered_by_years_df = fire_data_df[fire_data_df['acq_date'].dt.year.isin(selected_years)]
 
-if not filtered_df.empty:
-    st.subheader(f"Harita üzerinde {len(filtered_df)} yakın yangın olayı gösteriliyor.")
+
+final_filtered_df = filtered_by_years_df[
+    (filtered_by_years_df['lat'] > sehir_lat - 1) & (filtered_by_years_df['lat'] < sehir_lat + 1) &
+    (filtered_by_years_df['lon'] > sehir_lon - 1) & (filtered_by_years_df['lon'] < sehir_lon + 1)
+]
+
+if not final_filtered_df.empty:
+    st.subheader(f"Harita üzerinde {len(final_filtered_df)} yakın yangın olayı gösteriliyor.")
     marker_cluster = MarkerCluster().add_to(m)
-    for _, row in filtered_df.iterrows():
+    for _, row in final_filtered_df.iterrows():
         folium.Marker(
             location=[row['lat'], row['lon']],
             icon=folium.Icon(color='red', icon='fire'),
-            tooltip=f"Tarih: {row['acq_date']}<br>Sıcaklık: {row['bright_ti4']} K"
+            tooltip=f"Tarih: {row['acq_date'].strftime('%Y-%m-%d')}<br>Sıcaklık: {row['bright_ti4']} K"
         ).add_to(marker_cluster)
 else:
-    st.warning(f"{secilen_sehir} ve çevresinde yangın olayı bulunamadı.")
+    st.warning(f"{secilen_sehir} ve çevresinde seçili yıllar için yangın olayı bulunamadı.")
 
 st_folium(m, width=900, height=500)
