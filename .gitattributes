@@ -1,0 +1,2 @@
+orman_yangini_model.pkl filter=lfs diff=lfs merge=lfs -text
+tüm_veriler_birlesik_2020-2024.csv filter=lfs diff=lfs merge=lfs -text
