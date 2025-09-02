@@ -31,6 +31,7 @@ def load_fire_data():
     try:
         data = pd.read_csv("tüm_veriler_birlesik_2020-2024.csv")
         data = data.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
+        data['acq_date'] = pd.to_datetime(data['acq_date'])  
         return data
     except FileNotFoundError:
         st.error("Veri dosyası 'tüm_veriler_birlesik_2020-2024.csv' bulunamadı.")
