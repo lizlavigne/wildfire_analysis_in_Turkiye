@@ -26,23 +26,27 @@ tarafından tahmin yapmak için kullanılan serileştirilmiş makine öğrenimi 
 
 Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kullanır. Uygulamamızı sorunsuz bir şekilde çalıştırmak için aşağıdaki adımları izleyin:
 
-1. ***Git LFS'i Kurun:*** Terminalinizde aşağıdaki komutu çalıştırarak sisteminizde Git LFS'in kurulu olduğundan emin olun.
+1. ***Gerekli Kütüphaneleri Kurun:*** Proje dizinine gittikten sonra, tüm kütüphaneleri yüklemek için aşağıdaki komutu kullanın. Bu, pandas, scikit-learn ve diğer gerekli kütüphaneleri kuracaktır.
+
+  `pip install -r requirements.txt`
+
+2. ***Git LFS'i Kurun:*** Terminalinizde aşağıdaki komutu çalıştırarak sisteminizde Git LFS'in kurulu olduğundan emin olun.
 
    `git lfs install`
    
-2. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. 
+3. ***Depoyu Klonlayın:*** Depoyu normal bir şekilde klonlayın. 
 
   `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
   
-3. ***Uygulamayı Çalıştırın:*** Proje dizinine gidin.
+4. ***Uygulamayı Çalıştırın:*** Proje dizinine gidin.
  
  `cd wildfire_analysis_in_Turkiye`
 
-  * **3.1 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür.
+  * **4.1 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. (pandas ve sklearn modülleri indirilmiş olmalı değilse lütfen önce onu indirin)
     
  `python training_model.py`
 
-  * **3.2 Arayüzü Başlatın:**
+  * **4.2 Arayüzü Başlatın:**
 Bu komut, uygulamayı  web tarayıcınızda açacaktır.
 
  `streamlit run app.py`
@@ -86,23 +90,28 @@ This project is an advanced machine learning application designed to predict the
 
 This project uses **Git LFS (Large File Storage)** to handle large files. To run the application smoothly, follow these steps:
 
-1. ***Install Git LFS:*** Ensure Git LFS is installed on your system by running the following command in your terminal.
+1. ***Install Required Libraries:*** After navigating to the project directory, use the following command to install all the dependencies. This will set up libraries such as pandas, scikit-learn, and others.
+
+    `pip install -r requirements.txt`
+
+
+2. ***Install Git LFS:*** Ensure Git LFS is installed on your system by running the following command in your terminal.
    
     `git lfs install`
 
-2. ***Clone the Repository:*** Clone the repository as you normally would. Git LFS will automatically handle the download of the large files.
+3. ***Clone the Repository:*** Clone the repository as you normally would. Git LFS will automatically handle the download of the large files.
  
     `git clone https://github.com/adaerkn/wildfire_analysis_in_Turkiye.git`
 
-3. ***Run the Application:*** Navigate to the project directory.
+4. ***Run the Application:*** Navigate to the project directory.(pandas and sklearn modules must be downloaded, if not please download them first)
  
     `cd wildfire_analysis_in_Turkiye`
 
-    * **3.1 Train the Model:** If you want to retrain the model with your own data or update the existing one, run the following command. The result will be an updated, trained model.
+    * **4.1 Train the Model:** If you want to retrain the model with your own data or update the existing one, run the following command. The result will be an updated, trained model.
     
     `python training_model.py`
 
-    * **3.2 Launch the Interface:**
+    * **4.2 Launch the Interface:**
     This command will open the application in your web browser.
     
     `streamlit run app.py` 
