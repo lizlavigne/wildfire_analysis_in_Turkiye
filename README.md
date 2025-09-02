@@ -1,6 +1,6 @@
 # Türkiye'de Orman Yangını Analizi ve Tahmini
 
-Türkiye'de yaşanan sık orman yangınları nedeniyle bu analiz projesi Filiz Buzkıran (@lizlavigne), Göknil Bilge (@GoknilBilge) ve Ada Erkan (@adaerkn) tarafından geliştirilmiştir.
+Türkiye'de yaşanan sık orman yangınları nedeniyle bu analiz projesi **Filiz Buzkıran (@lizlavigne), Göknil Bilge (@GoknilBilge) ve Ada Erkan (@adaerkn)** tarafından geliştirilmiştir.
 
 Bu proje, Türkiye'deki orman yangınlarının riskini tahmin etmek için tasarlanmış ileri düzey bir makine öğrenimi uygulamasıdır. Tarihi yangın ve meteorolojik veriler üzerinde eğitilmiş bir **Random Forest Classifier** modeli kullanarak gerçek zamanlı ve 5 günlük risk tahmini sağlar. Uygulama, etkileşimli bir kullanıcı arayüzü için **Streamlit** ile, coğrafi görselleştirmeler için ise Folium ile geliştirilmiştir.
 
