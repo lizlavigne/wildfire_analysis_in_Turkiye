@@ -3,70 +3,51 @@
 Orman Yangını Tahmin Modeli
 """
 
-# 1. Gerekli Kütüphaneleri İçeri Aktarma
-# ------------------------------------------
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report, accuracy_score
+from imblearn.under_sampling import RandomUnderSampler
 import pickle
 
-# 2. Veri Setini Yükleme
-# ------------------------------------------
-try:
-    data = pd.read_csv("tüm_veriler_birlesik_2020-2024.csv")
-except FileNotFoundError:
-    print("HATA: 'tüm_veriler_birlesik_2020-2024.csv' dosyası bulunamadı.")
-    print("Lütfen dosya yolunu kontrol edin.")
-    exit()
-
-# 3. Veriyi Anlama ve Hazırlama
-# ------------------------------------------
-
-data['yangin_var'] = 1
+# 1. Veri Setini Yükle
+data = pd.read_csv("tum_veriler_2020_2024_yangin_var.csv")
 
 
-data_no_fire = data.copy()
-data_no_fire['yangin_var'] = 0
+ozellikler = ["temp_max", "temp_min", "precipitation", "rh_max", "rh_min", "wind_max"]
+X = data[ozellikler].fillna(data[ozellikler].mean())
+y = data["yangin_var"]
 
-data = pd.concat([data, data_no_fire], ignore_index=True)
 
-ozellikler = ['temp_max', 'temp_min', 'precipitation', 'rh_max', 'rh_min', 'wind_max']
-X = data[ozellikler]
-y = data['yangin_var']
+rus = RandomUnderSampler(random_state=42)
+X_res, y_res = rus.fit_resample(X, y)
 
-# 4. Veri Setini Eğitim ve Test Olarak Ayırma
-# ------------------------------------------
-X_egitim, X_test, y_egitim, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
+print("Orijinal dağılım:", y.value_counts().to_dict())
+print("Dengelenmiş dağılım:", y_res.value_counts().to_dict())
+
+# 2. Eğitim/Test Bölünmesi
+X_train, X_test, y_train, y_test = train_test_split(
+    X_res, y_res, test_size=0.2, random_state=42, stratify=y_res
 )
 
-print(f"Eğitim veri sayısı: {X_egitim.shape[0]}")
-print(f"Test veri sayısı: {X_test.shape[0]}")
-
-# 5. Modeli Oluşturma ve Eğitme
-# ------------------------------------------
+# 3. Model
 model = RandomForestClassifier(
-    n_estimators=100,
+    n_estimators=200,
+    max_depth=10,
     random_state=42,
     class_weight="balanced"
 )
 
-model.fit(X_egitim, y_egitim)
+model.fit(X_train, y_train)
 
-# 6. Modelin Başarısını Değerlendirme
-# ------------------------------------------
-y_tahmin = model.predict(X_test)
-
-print("\nModelin Test Başarısı:")
-print(f"Doğruluk Skoru: {accuracy_score(y_test, y_tahmin):.2f}")
+# 4. Tahmin ve Performans
+y_pred = model.predict(X_test)
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
 print("\nDetaylı Rapor:")
-print(classification_report(y_test, y_tahmin))
+print(classification_report(y_test, y_pred))
 
-# 7. Modeli Kaydetme
-# ------------------------------------------
-with open("orman_yangini_model.pkl", "wb") as file:
-    pickle.dump(model, file)
+# 5. Modeli Kaydet
+with open("orman_yangini_model.pkl", "wb") as f:
+    pickle.dump(model, f)
 
 print("\n✅ Model başarıyla 'orman_yangini_model.pkl' olarak kaydedildi.")
-

@@ -1,4 +1,3 @@
-
 """
 Orman Yangını Risk Tahmin Uygulaması - Streamlit
 Gelişmiş Versiyon: Grafik + 5 Günlük Risk Tahmini
@@ -14,6 +13,7 @@ import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 
+
 # ------------------------------
 # 1️⃣ Modeli Yükle
 # ------------------------------
@@ -25,17 +25,19 @@ def load_model():
     except FileNotFoundError:
         st.error("Model dosyası 'orman_yangini_model.pkl' bulunamadı.")
         st.stop()
-        
+
+
 @st.cache_data
 def load_fire_data():
     try:
-        data = pd.read_csv("tüm_veriler_birlesik_2020-2024.csv")
+        data = pd.read_csv("tum_veriler_2020_2024_yangin_var.csv")
         data = data.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
-        data['acq_date'] = pd.to_datetime(data['acq_date'])  
+        data['acq_date'] = pd.to_datetime(data['acq_date'])
         return data
     except FileNotFoundError:
-        st.error("Veri dosyası 'tüm_veriler_birlesik_2020-2024.csv' bulunamadı.")
+        st.error("Veri dosyası 'tum_veriler_2020_2024_yangin_var.csv' bulunamadı.")
         st.stop()
+
 
 model = load_model()
 fire_data_df = load_fire_data()
@@ -44,6 +46,7 @@ fire_data_df = load_fire_data()
 # 2️⃣ Hava Durumu Fonksiyonları
 # ------------------------------
 API_KEY = "e2cc91b090f4fdecb8b0aea827458fc6"
+
 
 @st.cache_data(ttl=3600)
 def get_current_weather(city):
@@ -92,23 +95,38 @@ def get_5day_forecast(city):
     except requests.exceptions.ConnectionError:
         return None
 
+
 # ------------------------------
 # 3️⃣ Risk Hesaplama Fonksiyonu
 # ------------------------------
 def calculate_risk(temp, humidity, wind, rain):
     risk = 0
-    if temp > 30: risk += 2
-    elif temp > 20: risk += 1
-    if humidity < 30: risk += 2
-    elif humidity < 50: risk += 1
-    if wind > 20: risk += 2
-    elif wind > 10: risk += 1
-    if rain > 5: risk -= 2
-    elif rain > 0: risk -= 1
-    if risk <= 1: return "Düşük", "🟢"
-    elif risk <= 3: return "Orta", "🟡"
-    elif risk <= 5: return "Yüksek", "🟠"
-    else: return "Çok Yüksek", "🔴"
+    if temp > 30:
+        risk += 2
+    elif temp > 20:
+        risk += 1
+    if humidity < 30:
+        risk += 2
+    elif humidity < 50:
+        risk += 1
+    if wind > 20:
+        risk += 2
+    elif wind > 10:
+        risk += 1
+    if rain > 5:
+        risk -= 2
+    elif rain > 0:
+        risk -= 1
+    if risk <= 1:
+        return "Düşük", "🟢"
+    elif risk <= 3:
+        return "Orta", "🟡"
+    elif risk <= 5:
+        return "Yüksek", "🟠"
+    else:
+        return "Çok Yüksek", "🔴"
+
+
 # ------------------------------
 
 city_coords = {
@@ -127,7 +145,6 @@ city_coords = {
 st.set_page_config(page_title="🔥 Orman Yangını Risk Tahmini", page_icon="🌲", layout="wide")
 st.title("🔥 Orman Yangını Risk Tahmin Uygulaması")
 st.markdown("Seçtiğiniz şehir için **anlık ve önümüzdeki 5 günün risk tahminini** görebilirsiniz.")
-
 
 sehirler = ["İstanbul", "Ankara", "İzmir", "Antalya", "Muğla", "Adana", "Mersin", "Çanakkale"]
 secilen_sehir = st.selectbox("Şehir seçin:", sehirler)
@@ -156,11 +173,11 @@ if current_weather and current_weather != "ConnectionError":
     st.markdown("---")
     st.subheader("🔎 Anlık Tahmin Sonucu")
     if prob < 0.3:
-        st.success(f"Düşük Risk (%{prob*100:.2f}) 🟢")
+        st.success(f"Düşük Risk (%{prob * 100:.2f}) 🟢")
     elif prob < 0.7:
-        st.warning(f"Orta Risk (%{prob*100:.2f}) 🟡")
+        st.warning(f"Orta Risk (%{prob * 100:.2f}) 🟡")
     else:
-        st.error(f"Yüksek Risk (%{prob*100:.2f}) 🔴")
+        st.error(f"Yüksek Risk (%{prob * 100:.2f}) 🔴")
 else:
     st.error("Hava durumu verisi alınamadı.")
 
@@ -177,7 +194,7 @@ if forecast_df is not None:
     st.dataframe(forecast_df[["Tarih", "Sıcaklık", "Nem", "Rüzgar", "Yağış", "Risk"]].set_index("Tarih"))
 
     st.subheader("📊 Hava Faktörleri Grafiği")
-    fig, ax = plt.subplots(figsize=(10,4))
+    fig, ax = plt.subplots(figsize=(10, 4))
     ax.plot(forecast_df["Tarih"], forecast_df["Sıcaklık"], marker="o", label="Sıcaklık (°C)")
     ax.plot(forecast_df["Tarih"], forecast_df["Nem"], marker="s", label="Nem (%)")
     ax.plot(forecast_df["Tarih"], forecast_df["Rüzgar"], marker="^", label="Rüzgar (m/s)")
@@ -199,7 +216,7 @@ all_years = sorted(fire_data_df['acq_date'].dt.year.unique())
 selected_years = st.multiselect(
     "Görüntülenecek Yılları Seçin:",
     options=all_years,
-    default=all_years 
+    default=all_years
 )
 
 sehir_lat, sehir_lon = city_coords[secilen_sehir]
@@ -220,11 +237,10 @@ if current_weather and current_weather != "ConnectionError":
 
 filtered_by_years_df = fire_data_df[fire_data_df['acq_date'].dt.year.isin(selected_years)]
 
-
 final_filtered_df = filtered_by_years_df[
     (filtered_by_years_df['lat'] > sehir_lat - 1) & (filtered_by_years_df['lat'] < sehir_lat + 1) &
     (filtered_by_years_df['lon'] > sehir_lon - 1) & (filtered_by_years_df['lon'] < sehir_lon + 1)
-]
+    ]
 
 if not final_filtered_df.empty:
     st.subheader(f"Harita üzerinde {len(final_filtered_df)} yakın yangın olayı gösteriliyor.")
