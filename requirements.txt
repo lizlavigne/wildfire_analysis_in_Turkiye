@@ -6,3 +6,4 @@ requests
 unidecode
 matplotlib
 streamlit-folium
+imblearn
