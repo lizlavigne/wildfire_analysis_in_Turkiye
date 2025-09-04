@@ -7,7 +7,7 @@ Bu proje, Türkiye'deki orman yangınlarının riskini tahmin etmek için tasarl
 ## Temel Özellikler
 * ***Makine Öğrenimi Tahminleri:*** Tarihsel yangın ve hava verileri üzerinde eğitilmiş bir Random **Forest Classifier** modeli ile orman yangını olasılığı tahmin edilir.
 
-* ***Gerçek Zamanlı Hava Durumu Entegrasyonu:*** **OpenWeatherMap API** üzerinden canlı ve 5 günlük hava durumu verileri çekilir.
+* ***Gerçek Zamanlı Hava Durumu Entegrasyonu:*** **OpenWeatherMap API** üzerinden canlı ve 5 günlük hava durumu verileri çekilir. Veriler, performans için **Streamlit'in önbellekleme (@st.cache_data) mekanizması** ile saklanır.
 
 * ***Etkileşimli Web Uygulaması:*** **Streamlit** ile geliştirilen uygulama, şehir seçme, risk tahminlerini görüntüleme ve hava durumu trendlerini analiz etme gibi kullanıcı dostu özellikler sunar.
 
@@ -18,11 +18,11 @@ Bu proje, Türkiye'deki orman yangınlarının riskini tahmin etmek için tasarl
 ## Proje Yapısı
 * `training_model.py`: Makine öğrenimi iş akışını yönetir. Verileri yükler, ön işler, Random Forest modelini eğitir ve daha sonra kullanılmak üzere eğitilmiş modeli .pkl dosyasına kaydeder.
 * `app.py`:  Ana uygulama dosyasıdır. Önceden eğitilmiş modeli yükler, OpenWeatherMap API ile etkileşime geçer, yangın riskini hesaplar ve sonuçları Streamlit ve Folium kullanarak görselleştirir.
-* `tüm_veriler_birlesik_2020-2024.csv`: Projenin birincil veri setidir. Makine öğrenimi modelini eğitmek için kullanılan tarihi yangın ve hava durumu bilgilerini içerir.
+* `tum_veriler_2020_2024_yangin_var.csv`: Projenin birincil veri setidir. Makine öğrenimi modelini eğitmek için kullanılan tarihi yangın ve hava durumu bilgilerini içerir.
 *  `orman_yangini_model.pkl`: `training_model.py` tarafından oluşturulan ve  `app.py` 
 tarafından tahmin yapmak için kullanılan serileştirilmiş makine öğrenimi modelidir.
 * `requirements.txt` : Projemizde kullandığımız kütüphaneleri içeren txt dosyamız.
-  (streamlit,pandas,scikit-learn,folium,requests)
+ 
 
   
 ## Nasıl Kullanılır
@@ -49,6 +49,8 @@ Bu proje, büyük dosyaları işlemek için **Git LFS (Large File Storage)** kul
   * **3.2 Modeli Eğitimi:** Modelimizin eğitilmiş halinin sonucu görünür. (gerekli modüller önceki adımdadır, lütfen önce onu uygulayın)
     
  `python training_model.py`
+
+  Bu komut, `orman_yangini_model.pkl` dosyasını oluşturacaktır. Arayüzün başlatılması için gereklidir
 
   * **3.3 Arayüzü Başlatın:**
 Bu komut, uygulamayı  web tarayıcınızda açacaktır.
@@ -86,7 +88,7 @@ This project is an advanced machine learning application designed to predict the
 
 * `training_model.py`: This script handles the core machine learning workflow. It loads and preprocesses data, trains the Random Forest model, and saves the trained model to a `.pkl` file for later use.
 * `app.py`: The main application file. It loads the pre-trained model, interacts with the OpenWeatherMap API, calculates the fire risk, and visualizes the results using Streamlit and Folium.
-* `tüm_veriler_birlesik_2020-2024.csv`: The primary dataset for the project. A dataset containing historical fire and weather information used to train the machine learning model.
+* `tum_veriler_2020_2024_yangin_var.csv`: The primary dataset for the project. A dataset containing historical fire and weather information used to train the machine learning model.
 * `orman_yangini_model.pkl`: The serialized machine learning model, created by `training_model.py` and used by `app.py` for making predictions.
 * `requirements.txt`: A text file that lists all the Python libraries used in our project, such as `streamlit`, `pandas`, `scikit-learn`, `folium`, and `requests`.
 
