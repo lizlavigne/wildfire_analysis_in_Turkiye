@@ -14,7 +14,7 @@ from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
 
 # ------------------------------
-# 1️⃣ Modeli Yükle
+# 1️⃣ Modeli Yükleme
 # ------------------------------
 @st.cache_resource
 def load_model():
@@ -162,6 +162,8 @@ if current_weather and current_weather != "ConnectionError":
         "rh_min": current_weather["nem"], "wind_max": current_weather["rüzgar_hızı"]
     }])["temp_max temp_min precipitation rh_max rh_min wind_max".split()]
     prob = model.predict_proba(tahmin_veri)[0][1]
+    #Skoru normalize etmek (0.2 ile 0.9 arasına sıkıştır)
+    prob = 0.2 + (prob * 0.7)
 
     st.markdown("---")
     st.subheader("🔎 Anlık Tahmin Sonucu")
