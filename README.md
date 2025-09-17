@@ -61,13 +61,13 @@ Bu komut, uygulamayı  web tarayıcınızda açacaktır.
 ## Application Screenshots
 Here are some screenshots to give you a better idea of the application's interface:
 
-### ![Current Weather and Risk Prediction](assets/capture_20250830162805075.bmp)
+### ![Current Weather and Risk Prediction](assets/WhatsApp Görsel 2025-09-17 saat 22.38.00_cd17d812.jpg)
 
-### ![5-Day Risk Forecast](assets/capture_20250830162823763.bmp)
+### ![5-Day Risk Forecast](assets/WhatsApp Görsel 2025-09-17 saat 22.38.30_13241ec0.jpg)
 
-### ![Weather Factors Graph](assets/capture_20250830162831825.jpg)
+### ![Weather Factors Graph](assets/WhatsApp Görsel 2025-09-17 saat 22.38.57_8f3d441e.jpg)
 
-### ![Wildfire Locations Map](assets/capture_20250830162748054.bmp)
+### ![Wildfire Locations Map](assets/WhatsApp Görsel 2025-09-17 saat 22.39.56_f5cbece3.jpg)
 
 
 ---------
