@@ -1,6 +1,6 @@
 """
 Orman Yangını Risk Tahmin Uygulaması - Streamlit
-Gelişmiş Versiyon: Grafik + 5 Günlük Risk Tahmini
+Gelişmiş Versiyon
 """
 
 import streamlit as st
@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import folium
 from streamlit_folium import st_folium
 from folium.plugins import MarkerCluster
-
 
 # ------------------------------
 # 1️⃣ Modeli Yükle
@@ -26,7 +25,6 @@ def load_model():
         st.error("Model dosyası 'orman_yangini_model.pkl' bulunamadı.")
         st.stop()
 
-
 @st.cache_data
 def load_fire_data():
     try:
@@ -38,7 +36,6 @@ def load_fire_data():
         st.error("Veri dosyası 'tum_veriler_2020_2024_yangin_var.csv' bulunamadı.")
         st.stop()
 
-
 model = load_model()
 fire_data_df = load_fire_data()
 
@@ -46,7 +43,6 @@ fire_data_df = load_fire_data()
 # 2️⃣ Hava Durumu Fonksiyonları
 # ------------------------------
 API_KEY = "e2cc91b090f4fdecb8b0aea827458fc6"
-
 
 @st.cache_data(ttl=3600)
 def get_current_weather(city):
@@ -69,7 +65,6 @@ def get_current_weather(city):
             return None
     except requests.exceptions.ConnectionError:
         return "ConnectionError"
-
 
 @st.cache_data(ttl=3600)
 def get_5day_forecast(city):
@@ -94,7 +89,6 @@ def get_5day_forecast(city):
             return None
     except requests.exceptions.ConnectionError:
         return None
-
 
 # ------------------------------
 # 3️⃣ Risk Hesaplama Fonksiyonu
@@ -126,9 +120,7 @@ def calculate_risk(temp, humidity, wind, rain):
     else:
         return "Çok Yüksek", "🔴"
 
-
 # ------------------------------
-
 city_coords = {
     "İstanbul": [41.0082, 28.9784],
     "Ankara": [39.9334, 32.8597],
@@ -139,6 +131,7 @@ city_coords = {
     "Mersin": [36.8123, 34.6415],
     "Çanakkale": [40.1462, 26.4086]
 }
+
 # ------------------------------
 # 4️⃣ Streamlit Arayüzü
 # ------------------------------
@@ -167,7 +160,7 @@ if current_weather and current_weather != "ConnectionError":
         "temp_max": current_weather["sıcaklık"], "temp_min": current_weather["sıcaklık"],
         "precipitation": 0, "rh_max": current_weather["nem"],
         "rh_min": current_weather["nem"], "wind_max": current_weather["rüzgar_hızı"]
-    }])[["temp_max", "temp_min", "precipitation", "rh_max", "rh_min", "wind_max"]]
+    }])["temp_max temp_min precipitation rh_max rh_min wind_max".split()]
     prob = model.predict_proba(tahmin_veri)[0][1]
 
     st.markdown("---")
@@ -182,16 +175,21 @@ else:
     st.error("Hava durumu verisi alınamadı.")
 
 # ------------------------------
-# 6️⃣ 5 Günlük Tahmin ve Grafik
+# 6️⃣ 5 Günlük Tahmin ve Grafik (GÜNCELLEME)
 # ------------------------------
-
 st.markdown("---")
 forecast_df = get_5day_forecast(api_sehir)
-if forecast_df is not None:
+
+if forecast_df is not None and not forecast_df.empty:
     st.subheader(f"📅 {secilen_sehir} - 5 Günlük Risk Tahmini")
-    forecast_df["Risk"] = forecast_df.apply(
-        lambda x: calculate_risk(x["Sıcaklık"], x["Nem"], x["Rüzgar"], x["Yağış"]), axis=1)
-    st.dataframe(forecast_df[["Tarih", "Sıcaklık", "Nem", "Rüzgar", "Yağış", "Risk"]].set_index("Tarih"))
+    forecast_df = forecast_df.copy()
+    forecast_df["Risk_seviyesi"] = forecast_df.apply(
+        lambda x: calculate_risk(x["Sıcaklık"], x["Nem"], x["Rüzgar"], x["Yağış"])[0], axis=1)
+    forecast_df["Risk_emoji"] = forecast_df.apply(
+        lambda x: calculate_risk(x["Sıcaklık"], x["Nem"], x["Rüzgar"], x["Yağış"])[1], axis=1)
+
+    st.dataframe(forecast_df[["Tarih", "Sıcaklık", "Nem", "Rüzgar", "Yağış", "Risk_seviyesi", "Risk_emoji"]]
+                 .set_index("Tarih"))
 
     st.subheader("📊 Hava Faktörleri Grafiği")
     fig, ax = plt.subplots(figsize=(10, 4))
@@ -199,58 +197,81 @@ if forecast_df is not None:
     ax.plot(forecast_df["Tarih"], forecast_df["Nem"], marker="s", label="Nem (%)")
     ax.plot(forecast_df["Tarih"], forecast_df["Rüzgar"], marker="^", label="Rüzgar (m/s)")
     ax.set_title(f"{secilen_sehir} - 5 Günlük Hava Trendleri")
+    ax.set_xlabel("Tarih")
+    ax.set_ylabel("Değer")
     ax.legend()
+    fig.tight_layout()
     st.pyplot(fig)
 else:
-    st.warning("5 günlük tahmin verisi alınamadı.")
+    st.warning("5 günlük tahmin verisi alınamadı. Hava verisi yoksa API veya internet bağlantınızı kontrol edin.")
+    fig, ax = plt.subplots(figsize=(8, 3))
+    ax.text(0.5, 0.5, "5 günlük veri alınamadı", ha='center', va='center')
+    ax.axis('off')
+    st.pyplot(fig)
 
 # ------------------------------
-# 7️⃣ Harita
+# 7️⃣ Harita (GÜNCELLEME)
 # ------------------------------
-
 st.markdown("---")
 st.header(f"{secilen_sehir} ve Çevresinde Yangın Olayları")
 
-all_years = sorted(fire_data_df['acq_date'].dt.year.unique())
+if not pd.api.types.is_datetime64_any_dtype(fire_data_df['acq_date']):
+    fire_data_df['acq_date'] = pd.to_datetime(fire_data_df['acq_date'], errors='coerce')
 
-selected_years = st.multiselect(
-    "Görüntülenecek Yılları Seçin:",
-    options=all_years,
-    default=all_years
-)
+all_years = sorted(fire_data_df['acq_date'].dt.year.dropna().astype(int).unique().tolist())
+selected_years = st.multiselect("Görüntülenecek Yılları Seçin:", options=all_years, default=all_years)
 
 sehir_lat, sehir_lon = city_coords[secilen_sehir]
 m = folium.Map(location=[sehir_lat, sehir_lon], zoom_start=9)
 
-if current_weather and current_weather != "ConnectionError":
-    if prob < 0.3:
-        risk_color = "green"
-    elif prob < 0.7:
-        risk_color = "yellow"
-    else:
-        risk_color = "red"
+try:
+    if 'prob' in locals():
+        if prob < 0.3:
+            risk_color = "green"
+        elif prob < 0.7:
+            risk_color = "orange"
+        else:
+            risk_color = "red"
 
-    folium.Circle(
-        location=[sehir_lat, sehir_lon], radius=10000, color=risk_color, fill=True,
-        fill_color=risk_color, fill_opacity=0.4, tooltip=f"Tahmini Risk: %{prob * 100:.2f}"
-    ).add_to(m)
+        folium.Circle(
+            location=[sehir_lat, sehir_lon], radius=10000, color=risk_color, fill=True,
+            fill_color=risk_color, fill_opacity=0.25,
+            tooltip=f"Tahmini Risk: %{prob * 100:.2f}"
+        ).add_to(m)
+except Exception:
+    pass
 
-filtered_by_years_df = fire_data_df[fire_data_df['acq_date'].dt.year.isin(selected_years)]
-
+filtered_by_years_df = fire_data_df[fire_data_df['acq_date'].dt.year.isin(selected_years)].copy()
 final_filtered_df = filtered_by_years_df[
     (filtered_by_years_df['lat'] > sehir_lat - 1) & (filtered_by_years_df['lat'] < sehir_lat + 1) &
     (filtered_by_years_df['lon'] > sehir_lon - 1) & (filtered_by_years_df['lon'] < sehir_lon + 1)
-    ]
+].copy()
 
+MAX_MARKERS = 2000
 if not final_filtered_df.empty:
-    st.subheader(f"Harita üzerinde {len(final_filtered_df)} yakın yangın olayı gösteriliyor.")
-    marker_cluster = MarkerCluster().add_to(m)
+    count = len(final_filtered_df)
+    st.subheader(f"Harita üzerinde {count} yakın yangın olayı (gösterim sınırlı).")
+    if count > MAX_MARKERS:
+        st.info(f"Çok fazla nokta ({count}) bulundu — performans için son {MAX_MARKERS} kayıt gösteriliyor.")
+        final_filtered_df = final_filtered_df.sort_values("acq_date", ascending=False).head(MAX_MARKERS)
+
+    marker_cluster = MarkerCluster()
     for _, row in final_filtered_df.iterrows():
-        folium.Marker(
-            location=[row['lat'], row['lon']],
-            icon=folium.Icon(color='red', icon='fire'),
-            tooltip=f"Tarih: {row['acq_date'].strftime('%Y-%m-%d')}<br>Sıcaklık: {row['bright_ti4']} K"
-        ).add_to(marker_cluster)
+        try:
+            popup_html = folium.Popup(
+                f"Tarih: {row['acq_date'].strftime('%Y-%m-%d')}<br>"
+                f"Sıcaklık (bright_ti4): {row.get('bright_ti4', 'NA')}", max_width=250)
+            folium.CircleMarker(
+                location=[row['lat'], row['lon']],
+                radius=4,
+                color='red',
+                fill=True,
+                fill_opacity=0.7,
+                popup=popup_html
+            ).add_to(marker_cluster)
+        except Exception:
+            continue
+    marker_cluster.add_to(m)
 else:
     st.warning(f"{secilen_sehir} ve çevresinde seçili yıllar için yangın olayı bulunamadı.")
 
