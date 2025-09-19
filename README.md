@@ -61,13 +61,13 @@ Bu komut, uygulamayı  web tarayıcınızda açacaktır.
 ## Application Screenshots
 Here are some screenshots to give you a better idea of the application's interface:
 
-### ![Current Weather and Risk Prediction](assets/capture_20250830162805075.bmp)
+### ![Current Weather and Risk Prediction](assets/1.bmp)
 
-### ![5-Day Risk Forecast](assets/capture_20250830162823763.bmp)
+### ![5-Day Risk Forecast](assets/2.bmp)
 
-### ![Weather Factors Graph](assets/capture_20250830162831825.jpg)
+### ![Weather Factors Graph](assets/file3.jpg)
 
-### ![Wildfire Locations Map](assets/capture_20250830162748054.bmp)
+### ![Wildfire Locations Map](assets/4.bmp)
 
 
 ---------

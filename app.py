@@ -177,7 +177,7 @@ else:
     st.error("Hava durumu verisi alınamadı.")
 
 # ------------------------------
-# 6️⃣ 5 Günlük Tahmin ve Grafik (GÜNCELLEME)
+# 6️⃣ 5 Günlük Tahmin ve Grafik               
 # ------------------------------
 st.markdown("---")
 forecast_df = get_5day_forecast(api_sehir)
@@ -278,3 +278,4 @@ else:
     st.warning(f"{secilen_sehir} ve çevresinde seçili yıllar için yangın olayı bulunamadı.")
 
 st_folium(m, width=900, height=500)
+                     
