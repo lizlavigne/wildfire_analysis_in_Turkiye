@@ -65,7 +65,7 @@ Here are some screenshots to give you a better idea of the application's interfa
 
 ### ![5-Day Risk Forecast](assets/2.bmp)
 
-### ![Weather Factors Graph](assets/3(1).bpm)
+### ![Weather Factors Graph](assets/WhatsApp Görsel 2025-09-17 saat 22.38.57_8f3d441e.jpg)
 
 ### ![Wildfire Locations Map](assets/4.bmp)
 
