@@ -1,0 +1,135 @@
+sehir,tip,isim,latitude,longitude
+Istanbul,itfaiye,Beşiktaş İtfaiye Grubu,41.0455,29.0065
+Istanbul,itfaiye,Kadıköy İtfaiye Grubu,40.9901,29.0279
+Istanbul,itfaiye,Fatih İtfaiye Grubu,41.0115,28.9554
+Istanbul,itfaiye,Silivri İtfaiye Grubu,41.0740,28.2470
+Istanbul,itfaiye,Pendik İtfaiye Grubu,40.8900,29.2300
+Istanbul,itfaiye,Sarıyer İtfaiye Grubu,41.1680,29.0500
+Istanbul,itfaiye,Büyükçekmece İtfaiye Grubu,41.0180,28.5800
+Istanbul,itfaiye,Çatalca İtfaiye Grubu,41.1450,28.4600
+Istanbul,itfaiye,Şile İtfaiye Grubu,41.1750,29.6100
+Istanbul,itfaiye,Arnavutköy İtfaiye İstasyonu,41.1850,28.7400
+Istanbul,su_kaynagi,Alibeyköy Barajı,41.0833,28.9500
+Istanbul,su_kaynagi,Terkos Gölü,41.3167,28.6000
+Istanbul,su_kaynagi,Ömerli Barajı,41.0700,29.3500
+Istanbul,su_kaynagi,Silivri Sahil (Deniz),41.0700,28.2500
+Istanbul,su_kaynagi,Aydos Göleti,40.9500,29.2200
+Istanbul,su_kaynagi,Belgrad Ormanı (Neşet Suyu),41.1300,28.9800
+Istanbul,su_kaynagi,Büyükçekmece Gölü,41.0500,28.6000
+Istanbul,su_kaynagi,Sazlıdere Barajı,41.1500,28.6900
+Istanbul,su_kaynagi,Şile Sahil (Deniz),41.1780,29.6130
+Ankara,itfaiye,Ankara Merkez (İskitler) İtfaiye,39.9450,32.8351
+Ankara,itfaiye,Çankaya İtfaiye İstasyonu,39.9070,32.8600
+Ankara,itfaiye,Keçiören İtfaiye İstasyonu,39.9700,32.8700
+Ankara,itfaiye,Sincan İtfaiye İstasyonu,39.9750,32.5800
+Ankara,itfaiye,Polatlı İtfaiye Grubu,39.5800,32.1400
+Ankara,itfaiye,Gölbaşı İtfaiye İstasyonu,39.7800,32.8000
+Ankara,itfaiye,Beypazarı İtfaiye Grubu,40.1650,31.9200
+Ankara,itfaiye,Nallıhan İtfaiye İstasyonu,40.2350,31.3200
+Ankara,su_kaynagi,Mogan Gölü,39.7750,32.7833
+Ankara,su_kaynagi,Eymir Gölü,39.8500,32.8700
+Ankara,su_kaynagi,Çubuk-1 Barajı,39.9950,32.8850
+Ankara,su_kaynagi,Sakarya Nehri (Polatlı),39.5700,32.1500
+Ankara,su_kaynagi,Kurtboğazı Barajı,40.2300,32.7000
+Ankara,su_kaynagi,Sarıyar Barajı (Nallıhan),40.0400,31.5700
+Ankara,su_kaynagi,Hirfanlı Baraj Gölü (Şereflikoçhisar yakını),39.1500,33.5000
+Izmir,itfaiye,İzmir Merkez (Konak) İtfaiye,38.4180,27.1350
+Izmir,itfaiye,Bornova İtfaiye Grubu,38.4650,27.2180
+Izmir,itfaiye,Karşıyaka İtfaiye Grubu,38.4570,27.1000
+Izmir,itfaiye,Çeşme İtfaiye Grubu,38.3230,26.3050
+Izmir,itfaiye,Bergama İtfaiye Grubu,39.1200,27.1800
+Izmir,itfaiye,Urla İtfaiye İstasyonu,38.3200,26.7600
+Izmir,itfaiye,Torbalı İtfaiye İstasyonu,38.1600,27.3600
+Izmir,itfaiye,Ödemiş İtfaiye Grubu,38.2270,27.9700
+Izmir,itfaiye,Seferihisar İtfaiye Grubu,38.1950,26.8400
+Izmir,itfaiye,Foça İtfaiye İstasyonu,38.6700,26.7500
+Izmir,su_kaynagi,İzmir Limanı (Deniz),38.4450,27.1650
+Izmir,su_kaynagi,Balçova Barajı,38.3850,27.0500
+Izmir,su_kaynagi,Tahtalı Barajı,38.2000,27.1500
+Izmir,su_kaynagi,Çeşme Marina (Deniz),38.3250,26.3000
+Izmir,su_kaynagi,Bakırçay Nehri (Bergama),39.1100,27.1700
+Izmir,su_kaynagi,Alaçatı Barajı,38.2800,26.3800
+Izmir,su_kaynagi,Gediz Deltası (Kuş Cenneti),38.5100,26.9300
+Izmir,su_kaynagi,Gölcük Gölü (Ödemiş),38.3100,28.0300
+Izmir,su_kaynagi,Küçük Menderes Nehri (Selçuk),37.9500,27.3500
+Antalya,itfaiye,Antalya Merkez İtfaiye,36.8970,30.7050
+Antalya,itfaiye,Konyaaltı İtfaiye Grubu,36.8850,30.6500
+Antalya,itfaiye,Lara İtfaiye İstasyonu,36.8550,30.7800
+Antalya,itfaiye,Alanya İtfaiye Grubu,36.5450,31.9990
+Antalya,itfaiye,Kaş İtfaiye İstasyonu,36.2000,29.6400
+Antalya,itfaiye,Manavgat İtfaiye Grubu,36.7860,31.4440
+Antalya,itfaiye,Kemer İtfaiye İstasyonu,36.6000,30.5600
+Antalya,itfaiye,Korkuteli İtfaiye Grubu,37.0600,30.1900
+Antalya,itfaiye,Elmalı İtfaiye İstasyonu,36.7350,29.9100
+Antalya,itfaiye,Gazipaşa İtfaiye İstasyonu,36.2700,32.3100
+Antalya,su_kaynagi,Antalya Limanı (Deniz),36.8510,30.6100
+Antalya,su_kaynagi,Karacaören Barajı,37.3000,30.8500
+Antalya,su_kaynagi,Alanya Limanı (Deniz),36.5420,31.9950
+Antalya,su_kaynagi,Kaş Limanı (Deniz),36.1980,29.6380
+Antalya,su_kaynagi,Manavgat Nehri,36.7800,31.4500
+Antalya,su_kaynagi,Oymapınar Barajı,36.9400,31.5400
+Antalya,su_kaynagi,Köprülü Kanyon (Köprüçay),37.1900,31.1700
+Antalya,su_kaynagi,Avlan Gölü (Elmalı),36.6300,29.9300
+Antalya,su_kaynagi,Dim Çayı Barajı (Alanya),36.5900,32.0900
+Mugla,itfaiye,Muğla Merkez (Menteşe) İtfaiye,37.1850,28.3650
+Mugla,itfaiye,Bodrum İtfaiye Grubu,37.0350,27.4300
+Mugla,itfaiye,Fethiye İtfaiye Grubu,36.6200,29.1150
+Mugla,itfaiye,Marmaris İtfaiye Grubu,36.8550,28.2700
+Mugla,itfaiye,Datça İtfaiye İstasyonu,36.7250,27.6850
+Mugla,itfaiye,Milas İtfaiye Grubu,37.3150,27.7800
+Mugla,itfaiye,Yatağan İtfaiye Grubu,37.3400,28.1400
+Mugla,itfaiye,Dalaman İtfaiye İstasyonu,36.7650,28.8000
+Mugla,itfaiye,Köyceğiz İtfaiye İstasyonu,36.9550,28.6850
+Mugla,su_kaynagi,Köyceğiz Gölü,36.9500,28.6500
+Mugla,su_kaynagi,Marmaris Limanı (Deniz),36.8500,28.2750
+Mugla,su_kaynagi,Gökova Körfezi (Deniz),37.0000,28.0000
+Mugla,su_kaynagi,Datça Liman (Deniz),36.7230,27.6880
+Mugla,su_kaynagi,Bafa Gölü,37.5000,27.4200
+Mugla,su_kaynagi,Bodrum Marina (Deniz),37.0320,27.4280
+Mugla,su_kaynagi,Dalaman Çayı,36.7500,28.7800
+Mugla,su_kaynagi,Fethiye Körfezi (Deniz),36.6500,29.1000
+Adana,itfaiye,Adana Büyükşehir İtfaiye Daire Bşk.,37.0010,35.3150
+Adana,itfaiye,Yüreğir İtfaiye İstasyonu,36.9950,35.3500
+Adana,itfaiye,Çukurova İtfaiye İstasyonu,37.0500,35.2800
+Adana,itfaiye,Kozan İtfaiye Grubu,37.4250,35.8100
+Adana,itfaiye,Ceyhan İtfaiye İstasyonu,37.0250,35.8300
+Adana,itfaiye,Pozantı İtfaiye İstasyonu,37.4200,34.8700
+Adana,itfaiye,Karataş İtfaiye İstasyonu,36.5650,35.3700
+Adana,itfaiye,Feke İtfaiye İstasyonu,37.8150,35.9100
+Adana,su_kaynagi,Seyhan Baraj Gölü,37.0600,35.3300
+Adana,su_kaynagi,Ceyhan Nehri (Yüreğir Kısmı),36.9800,35.3400
+Adana,su_kaynagi,Çatalan Barajı,37.2500,35.2500
+Adana,su_kaynagi,Kozan Barajı,37.5000,35.8300
+Adana,su_kaynagi,Karataş Sahil (Deniz),36.5600,35.3700
+Adana,su_kaynagi,Akyatan Gölü (Lagün),36.6000,35.2500
+Adana,su_kaynagi,Göksu Nehri (Pozantı),37.4300,34.8800
+Mersin,itfaiye,Mersin Merkez İtfaiye,36.8100,34.6300
+Mersin,itfaiye,Yenişehir İtfaiye Grubu,36.7950,34.6000
+Mersin,itfaiye,Tarsus İtfaiye Grubu,36.9180,34.8900
+Mersin,itfaiye,Erdemli İtfaiye Grubu,36.6060,34.3100
+Mersin,itfaiye,Silifke İtfaiye Grubu,36.3750,33.9300
+Mersin,itfaiye,Anamur İtfaiye Grubu,36.0750,32.8400
+Mersin,itfaiye,Mut İtfaiye Grubu,36.6450,33.4350
+Mersin,itfaiye,Gülnar İtfaiye İstasyonu,36.3400,33.4000
+Mersin,su_kaynagi,Mersin Limanı (Deniz),36.8000,34.6400
+Mersin,su_kaynagi,Berdan Barajı,36.9500,34.8800
+Mersin,su_kaynagi,Göksu Nehri (Silifke),36.3650,33.9400
+Mersin,su_kaynagi,Anamur Sahil (Deniz),36.0700,32.8500
+Mersin,su_kaynagi,Erdemli Sahil (Deniz),36.6000,34.3150
+Mersin,su_kaynagi,Gezerende Göleti (Mut),36.7000,33.4500
+Mersin,su_kaynagi,Aydıncık Sahil (Deniz),36.1450,33.3200
+Canakkale,itfaiye,Çanakkale Merkez İtfaiye,40.1450,26.4050
+Canakkale,itfaiye,Eceabat İtfaiye İstasyonu,40.1850,26.3550
+Canakkale,itfaiye,Lapseki İtfaiye İstasyonu,40.3450,26.6850
+Canakkale,itfaiye,Gelibolu İtfaiye İstasyonu,40.4100,26.6700
+Canakkale,itfaiye,Biga İtfaiye Grubu,40.2280,27.2400
+Canakkale,itfaiye,Ayvacık İtfaiye İstasyonu,39.6000,26.4000
+Canakkale,itfaiye,Ezine İtfaiye İstasyonu,39.7800,26.3400
+Canakkale,itfaiye,Gökçeada İtfaiye İstasyonu,40.1950,25.9100
+Canakkale,su_kaynagi,Çanakkale Boğazı (Kıyı),40.1500,26.4000
+Canakkale,su_kaynagi,Atikhisar Barajı,40.0500,26.4300
+Canakkale,su_kaynagi,Biga Çayı,40.2300,27.2450
+Canakkale,su_kaynagi,Edremit Körfezi (Küçükkuyu),39.5500,26.6500
+Canakkale,su_kaynagi,Saros Körfezi (Gelibolu),40.4500,26.7000
+Canakkale,su_kaynagi,Karamenderes Çayı (Ezine),39.8000,26.3000
+Canakkale,su_kaynagi,Gökçeada Göleti,40.1800,25.9000
