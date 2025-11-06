@@ -1,281 +1,319 @@
-"""
-Orman Yangını Risk Tahmin Uygulaması - Streamlit
-Gelişmiş Versiyon
-"""
-
+# app.py
 import streamlit as st
 import pandas as pd
-import pickle
-import requests
-from unidecode import unidecode
-import matplotlib.pyplot as plt
+import geopandas as gpd
 import folium
+from folium.plugins import TimestampedGeoJson
 from streamlit_folium import st_folium
-from folium.plugins import MarkerCluster
+import json
+from shapely.geometry import shape
+from db import SessionLocal
+import models
+from config import BASE_DIR
+import numpy as np
+import pickle
+from datetime import datetime
+from fpdf import FPDF
+import os
 
-# ------------------------------
-# 1️⃣ Modeli Yükleme
-# ------------------------------
-@st.cache_resource
-def load_model():
+# ---- Yardımcı Fonksiyonlar ----
+def get_db():
+    """
+    Veritabanı oturumu (session) sağlar.
+    yield ile birlikte kullanınca, çağıran yer try/finally mantığında db.close() çağırabilir.
+    """
+    db = SessionLocal()
     try:
-        with open("orman_yangini_model.pkl", "rb") as file:
-            return pickle.load(file)
-    except FileNotFoundError:
-        st.error("Model dosyası 'orman_yangini_model.pkl' bulunamadı.")
-        st.stop()
+        yield db
+    finally:
+        db.close()
 
-@st.cache_data
-def load_fire_data():
-    try:
-        data = pd.read_csv("tum_veriler_2020_2024_yangin_var.csv")
-        data = data.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
-        data['acq_date'] = pd.to_datetime(data['acq_date'])
-        return data
-    except FileNotFoundError:
-        st.error("Veri dosyası 'tum_veriler_2020_2024_yangin_var.csv' bulunamadı.")
-        st.stop()
-
-model = load_model()
-fire_data_df = load_fire_data()
-
-# ------------------------------
-# 2️⃣ Hava Durumu Fonksiyonları
-# ------------------------------
-API_KEY = "e2cc91b090f4fdecb8b0aea827458fc6"
-
-@st.cache_data(ttl=3600)
-def get_current_weather(city):
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
-    try:
-        response = requests.get(url)
-        data = response.json()
-        if str(data.get("cod")) == "200":
-            main = data["main"]
-            wind = data["wind"]
-            return {
-                "sıcaklık": main["temp"],
-                "nem": main["humidity"],
-                "rüzgar_hızı": wind["speed"]
-            }
-        elif str(data.get("cod")) == "401":
-            st.error("❌ API key geçersiz. Lütfen API anahtarınızı kontrol edin.")
-            st.stop()
-        else:
-            return None
-    except requests.exceptions.ConnectionError:
-        return "ConnectionError"
-
-@st.cache_data(ttl=3600)
-def get_5day_forecast(city):
-    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
-    try:
-        response = requests.get(url)
-        data = response.json()
-        if str(data.get("cod")) == "200":
-            forecasts = []
-            for item in data["list"]:
-                dt = item["dt_txt"]
-                temp = item["main"]["temp"]
-                humidity = item["main"]["humidity"]
-                wind = item["wind"]["speed"]
-                rain = item.get("rain", {}).get("3h", 0)
-                forecasts.append([dt, temp, humidity, wind, rain])
-            df = pd.DataFrame(forecasts, columns=["Tarih", "Sıcaklık", "Nem", "Rüzgar", "Yağış"])
-            df["Tarih"] = pd.to_datetime(df["Tarih"])
-            daily_df = df[df["Tarih"].dt.hour == 12].head(5)
-            return daily_df
-        else:
-            return None
-    except requests.exceptions.ConnectionError:
-        return None
-
-# ------------------------------
-# 3️⃣ Risk Hesaplama Fonksiyonu
-# ------------------------------
-def calculate_risk(temp, humidity, wind, rain):
-    risk = 0
-    if temp > 30:
-        risk += 2
-    elif temp > 20:
-        risk += 1
-    if humidity < 30:
-        risk += 2
-    elif humidity < 50:
-        risk += 1
-    if wind > 20:
-        risk += 2
-    elif wind > 10:
-        risk += 1
-    if rain > 5:
-        risk -= 2
-    elif rain > 0:
-        risk -= 1
-    if risk <= 1:
-        return "Düşük", "🟢"
-    elif risk <= 3:
-        return "Orta", "🟡"
-    elif risk <= 5:
-        return "Yüksek", "🟠"
+def center_from_geojson(geojson_obj):
+    """
+    GeoJSON objesinden bounding box alır ve merkez koordinatı döner.
+    geojson_obj: Python dict (json yüklenmiş hali)
+    """
+    # Eğer feature collection ise ilk özellikten geometri al
+    if "features" in geojson_obj and len(geojson_obj["features"]) > 0:
+        geom = shape(geojson_obj["features"][0]["geometry"])
     else:
-        return "Çok Yüksek", "🔴"
+        geom = shape(geojson_obj)
+    bounds = geom.bounds  # (minx, miny, maxx, maxy)
+    center = [(bounds[1] + bounds[3]) / 2, (bounds[0] + bounds[2]) / 2]
+    return center, bounds
 
-# ------------------------------
-city_coords = {
-    "İstanbul": [41.0082, 28.9784],
-    "Ankara": [39.9334, 32.8597],
-    "İzmir": [38.4192, 27.1287],
-    "Antalya": [36.8969, 30.7133],
-    "Muğla": [37.2155, 28.3635],
-    "Adana": [37.0000, 35.3213],
-    "Mersin": [36.8123, 34.6415],
-    "Çanakkale": [40.1462, 26.4086]
-}
+def load_model(path):
+    """
+    Pickle ile kaydedilmiş modeli yükler.
+    """
+    with open(path, "rb") as f:
+        return pickle.load(f)
 
-# ------------------------------
-# 4️⃣ Streamlit Arayüzü
-# ------------------------------
-st.set_page_config(page_title="🔥 Orman Yangını Risk Tahmini", page_icon="🌲", layout="wide")
-st.title("🔥 Orman Yangını Risk Tahmin Uygulaması")
-st.markdown("Seçtiğiniz şehir için **anlık ve önümüzdeki 5 günün risk tahminini** görebilirsiniz.")
+def create_pdf_report(simulation_id, summary_text, out_path):
+    """
+    FPDF kullanarak basit bir PDF raporu yaratır.
+    """
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=f"Simulasyon Raporu - ID: {simulation_id}", ln=True, align="L")
+    pdf.multi_cell(0, 8, txt=summary_text)
+    pdf.output(out_path)
+    return out_path
 
-sehirler = ["İstanbul", "Ankara", "İzmir", "Antalya", "Muğla", "Adana", "Mersin", "Çanakkale"]
-secilen_sehir = st.selectbox("Şehir seçin:", sehirler)
-api_sehir = unidecode(secilen_sehir)
+def spread_step(grid, wind_dir, wind_speed, drought_grid):
+    """
+    Cellular automata bir adım: yanan hücreler çevresini tutuşturabilir.
+    grid: numpy array, 0=unburned, 1=burning, 2=burned
+    wind_dir: derece (0 = doğu, 90 = kuzey)
+    wind_speed: m/s
+    drought_grid: same shape grid with 0..1 kuraklık skorları
+    """
+    new_grid = grid.copy()
+    rows, cols = grid.shape
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r, c] == 1:  # eğer bu hücre yanıyorsa
+                for dr in [-1, 0, 1]:
+                    for dc in [-1, 0, 1]:
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < rows and 0 <= nc < cols:
+                            if grid[nr, nc] == 0:  # komşu yanmıyorsa
+                                base_p = 0.1
+                                wx = np.cos(np.deg2rad(wind_dir))
+                                wy = np.sin(np.deg2rad(wind_dir))
+                                vec = np.array([dc, -dr])
+                                dot = wx * vec[0] + wy * vec[1]
+                                wind_factor = max(0, dot) * (wind_speed / 10.0)
+                                drought_factor = drought_grid[nr, nc]
+                                p = base_p + 0.4 * drought_factor + 0.4 * wind_factor
+                                if np.random.rand() < p:
+                                    new_grid[nr, nc] = 1
+                new_grid[r, c] = 2
+    return new_grid
 
-# ------------------------------
-# 5️⃣ Anlık Tahmin
-# ------------------------------
+def grid_to_timestamped_geojson(frames, origin_lat, origin_lon, start_time=None):
+    """
+    CA çıktısını folium'un TimestampedGeoJson için FeatureCollection'a çevirir.
+    frames: liste halinde grid numpy array'leri
+    origin_lat, origin_lon: başlangıç noktasının koordinatları
+    """
+    features = []
+    time = start_time or datetime.utcnow()
+    for t_idx, grid in enumerate(frames):
+        timestamp = time.isoformat()
+        rows, cols = grid.shape
+        for r in range(rows):
+            for c in range(cols):
+                val = grid[r, c]
+                if val == 1 or val == 2:
+                    lat = origin_lat + (r - rows//2) * 0.0015
+                    lon = origin_lon + (c - cols//2) * 0.0015
+                    feature = {
+                        "type": "Feature",
+                        "geometry": {"type": "Point", "coordinates": [lon, lat]},
+                        "properties": {
+                            "time": timestamp,
+                            "style": {"color": "red" if val == 1 else "gray", "radius": 6}
+                        }
+                    }
+                    features.append(feature)
+        # (opsiyonel) time increment ekleyebilirsin
+    return {"type": "FeatureCollection", "features": features}
 
-st.subheader(f"📌 {secilen_sehir} - Anlık Hava Durumu ve Risk Tahmini")
+# ---- Streamlit arayüzü ----
+st.set_page_config(layout="wide", page_title="AlevKalkan - Demo", page_icon="🔥")
+st.title("AlevKalkan - Belediye Özel Yangın Analiz Platformu (Demo)")
 
-current_weather = get_current_weather(api_sehir)
+# Sidebar: sayfalar
+page = st.sidebar.selectbox("Sayfa Seç", ["Ana Panel", "Belediye Veri Yükleme", "Risk Analizi", "Yayılım Simülasyonu"])
 
-if current_weather and current_weather != "ConnectionError":
-    st.write(f"🌡️ Sıcaklık: {current_weather['sıcaklık']} °C")
-    st.write(f"💧 Nem: %{current_weather['nem']}")
-    st.write(f"💨 Rüzgar Hızı: {current_weather['rüzgar_hızı']} m/s")
+# Model yükleme (eğer varsa)
+MODEL_PATH = BASE_DIR / "orman_yangini_model.pkl"
+model = None
+if MODEL_PATH.exists():
+    try:
+        model = load_model(str(MODEL_PATH))
+    except Exception as e:
+        st.sidebar.warning(f"Model yüklenemedi: {e}")
 
-    tahmin_veri = pd.DataFrame([{
-        "temp_max": current_weather["sıcaklık"], "temp_min": current_weather["sıcaklık"],
-        "precipitation": 0, "rh_max": current_weather["nem"],
-        "rh_min": current_weather["nem"], "wind_max": current_weather["rüzgar_hızı"]
-    }])["temp_max temp_min precipitation rh_max rh_min wind_max".split()]
-    prob = model.predict_proba(tahmin_veri)[0][1]
-    #Skoru normalize etmek (0.2 ile 0.9 arasına sıkıştır)
-    prob = 0.2 + (prob * 0.7)
+# Ana Panel sayfası
+if page == "Ana Panel":
+    st.header("Ana Panel")
+    st.markdown("Bu demo AlevKalkan'ın temel fonksiyonlarını gösterir.")
+    db = next(get_db())
+    municipalities = db.query(models.Municipality).all()
+    st.write(f"Veritabanında {len(municipalities)} belediye kaydı var.")
+    for m in municipalities:
+        st.write(f"- {m.name} (ID: {m.id})")
 
-    st.markdown("---")
-    st.subheader("🔎 Anlık Tahmin Sonucu")
-    if prob < 0.3:
-        st.success(f"Düşük Risk (%{prob * 100:.2f}) 🟢")
-    elif prob < 0.7:
-        st.warning(f"Orta Risk (%{prob * 100:.2f}) 🟡")
-    else:
-        st.error(f"Yüksek Risk (%{prob * 100:.2f}) 🔴")
-else:
-    st.error("Hava durumu verisi alınamadı.")
+# Belediye Veri Yükleme sayfası
+elif page == "Belediye Veri Yükleme":
+    st.header("Belediye Veri Yükleme")
+    st.markdown("Lütfen GeoJSON sınırı ve kritik varlık CSV'si yükleyin.")
 
-# ------------------------------
-# 6️⃣ 5 Günlük Tahmin ve Grafik               
-# ------------------------------
-st.markdown("---")
-forecast_df = get_5day_forecast(api_sehir)
+    uploaded_geo = st.file_uploader("Belediye GeoJSON dosyası", type=["geojson", "json"])
+    uploaded_assets = st.file_uploader("Kritik varlıklar CSV (name,type,latitude,longitude)", type=["csv"])
+    name_input = st.text_input("Belediye adı (örn: X Belediyesi)")
 
-if forecast_df is not None and not forecast_df.empty:
-    st.subheader(f"📅 {secilen_sehir} - 5 Günlük Risk Tahmini")
-    forecast_df = forecast_df.copy()
-    forecast_df["Risk_seviyesi"] = forecast_df.apply(
-        lambda x: calculate_risk(x["Sıcaklık"], x["Nem"], x["Rüzgar"], x["Yağış"])[0], axis=1)
-    forecast_df["Risk_emoji"] = forecast_df.apply(
-        lambda x: calculate_risk(x["Sıcaklık"], x["Nem"], x["Rüzgar"], x["Yağış"])[1], axis=1)
-
-    st.dataframe(forecast_df[["Tarih", "Sıcaklık", "Nem", "Rüzgar", "Yağış", "Risk_seviyesi", "Risk_emoji"]]
-                 .set_index("Tarih"))
-
-    st.subheader("📊 Hava Faktörleri Grafiği")
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(forecast_df["Tarih"], forecast_df["Sıcaklık"], marker="o", label="Sıcaklık (°C)")
-    ax.plot(forecast_df["Tarih"], forecast_df["Nem"], marker="s", label="Nem (%)")
-    ax.plot(forecast_df["Tarih"], forecast_df["Rüzgar"], marker="^", label="Rüzgar (m/s)")
-    ax.set_title(f"{secilen_sehir} - 5 Günlük Hava Trendleri")
-    ax.set_xlabel("Tarih")
-    ax.set_ylabel("Değer")
-    ax.legend()
-    fig.tight_layout()
-    st.pyplot(fig)
-else:
-    st.warning("5 günlük tahmin verisi alınamadı. Hava verisi yoksa API veya internet bağlantınızı kontrol edin.")
-    fig, ax = plt.subplots(figsize=(8, 3))
-    ax.text(0.5, 0.5, "5 günlük veri alınamadı", ha='center', va='center')
-    ax.axis('off')
-    st.pyplot(fig)
-
-# ------------------------------
-# 7️⃣ Harita (GÜNCELLEME)
-# ------------------------------
-st.markdown("---")
-st.header(f"{secilen_sehir} ve Çevresinde Yangın Olayları")
-
-if not pd.api.types.is_datetime64_any_dtype(fire_data_df['acq_date']):
-    fire_data_df['acq_date'] = pd.to_datetime(fire_data_df['acq_date'], errors='coerce')
-
-all_years = sorted(fire_data_df['acq_date'].dt.year.dropna().astype(int).unique().tolist())
-selected_years = st.multiselect("Görüntülenecek Yılları Seçin:", options=all_years, default=all_years)
-
-sehir_lat, sehir_lon = city_coords[secilen_sehir]
-m = folium.Map(location=[sehir_lat, sehir_lon], zoom_start=9)
-
-try:
-    if 'prob' in locals():
-        if prob < 0.3:
-            risk_color = "green"
-        elif prob < 0.7:
-            risk_color = "orange"
+    if st.button("Yükle ve Kaydet"):
+        if not uploaded_geo or not uploaded_assets or not name_input:
+            st.error("GeoJSON, CSV ve belediye adı gereklidir.")
         else:
-            risk_color = "red"
+            geojson_obj = json.load(uploaded_geo)
+            assets_df = pd.read_csv(uploaded_assets)
+            db = next(get_db())
+            muni = models.Municipality(name=name_input, geojson=json.dumps(geojson_obj))
+            db.add(muni)
+            db.commit()
+            db.refresh(muni)
+            for _, row in assets_df.iterrows():
+                asset = models.CriticalAsset(
+                    municipality_id=muni.id,
+                    name=row["name"],
+                    type=row.get("type", "unknown"),
+                    latitude=float(row["latitude"]),
+                    longitude=float(row["longitude"])
+                )
+                db.add(asset)
+            db.commit()
+            st.success(f"{name_input} ve varlıkları veritabanına kaydedildi (ID: {muni.id}).")
 
-        folium.Circle(
-            location=[sehir_lat, sehir_lon], radius=10000, color=risk_color, fill=True,
-            fill_color=risk_color, fill_opacity=0.25,
-            tooltip=f"Tahmini Risk: %{prob * 100:.2f}"
-        ).add_to(m)
-except Exception:
-    pass
-
-filtered_by_years_df = fire_data_df[fire_data_df['acq_date'].dt.year.isin(selected_years)].copy()
-final_filtered_df = filtered_by_years_df[
-    (filtered_by_years_df['lat'] > sehir_lat - 1) & (filtered_by_years_df['lat'] < sehir_lat + 1) &
-    (filtered_by_years_df['lon'] > sehir_lon - 1) & (filtered_by_years_df['lon'] < sehir_lon + 1)
-].copy()
-
-MAX_MARKERS = 2000
-if not final_filtered_df.empty:
-    count = len(final_filtered_df)
-    st.subheader(f"Harita üzerinde {count} yakın yangın olayı (gösterim sınırlı).")
-    if count > MAX_MARKERS:
-        st.info(f"Çok fazla nokta ({count}) bulundu — performans için son {MAX_MARKERS} kayıt gösteriliyor.")
-        final_filtered_df = final_filtered_df.sort_values("acq_date", ascending=False).head(MAX_MARKERS)
-
-    marker_cluster = MarkerCluster()
-    for _, row in final_filtered_df.iterrows():
+    if uploaded_geo:
         try:
-            popup_html = folium.Popup(
-                f"Tarih: {row['acq_date'].strftime('%Y-%m-%d')}<br>"
-                f"Sıcaklık (bright_ti4): {row.get('bright_ti4', 'NA')}", max_width=250)
-            folium.CircleMarker(
-                location=[row['lat'], row['lon']],
-                radius=4,
-                color='red',
-                fill=True,
-                fill_opacity=0.7,
-                popup=popup_html
-            ).add_to(marker_cluster)
-        except Exception:
-            continue
-    marker_cluster.add_to(m)
-else:
-    st.warning(f"{secilen_sehir} ve çevresinde seçili yıllar için yangın olayı bulunamadı.")
+            uploaded_geo.seek(0)
+            geojson_obj = json.load(uploaded_geo)
+            center, bounds = center_from_geojson(geojson_obj)
+            m = folium.Map(location=center, zoom_start=12)
+            folium.GeoJson(geojson_obj).add_to(m)
+            st_folium(m, width=900, height=500)
+        except Exception as e:
+            st.error(f"GeoJSON gösterilemedi: {e}")
 
-st_folium(m, width=900, height=500)
-                     
+# Risk Analizi sayfası
+elif page == "Risk Analizi":
+    st.header("Risk Analizi - Belediye Özel")
+    db = next(get_db())
+    munis = db.query(models.Municipality).all()
+    muni_map = {m.name: m for m in munis}
+    selected = st.selectbox("Belediye seç", ["-- Seçiniz --"] + list(muni_map.keys()))
+
+    if selected != "-- Seçiniz --":
+        muni = muni_map[selected]
+        geojson_obj = json.loads(muni.geojson)
+        center, bounds = center_from_geojson(geojson_obj)
+        m = folium.Map(location=center, zoom_start=12)
+        folium.GeoJson(geojson_obj).add_to(m)
+        assets = db.query(models.CriticalAsset).filter_by(municipality_id=muni.id).all()
+        for a in assets:
+            folium.Marker([a.latitude, a.longitude], popup=f"{a.name} ({a.type})").add_to(m)
+        st_folium(m, width=900, height=500)
+
+        st.subheader("5 günlük risk tahmini (örnek)")
+        if model is None:
+            st.warning("Eğitilmiş model bulunamadı. training_model.py ile modeli eğitip orman_yangini_model.pkl oluşturun.")
+        else:
+            st.markdown("Günlük sıcaklık, nem, rüzgar ve kuraklık skorunu girin.")
+            days = 5
+            temps = [st.number_input(f"Gün {i+1} - Ortalama sıcaklık (°C)", value=30.0, key=f"t{i}") for i in range(days)]
+            humid = [st.number_input(f"Gün {i+1} - Nem (%)", value=30.0, key=f"h{i}") for i in range(days)]
+            windspd = [st.number_input(f"Gün {i+1} - Rüzgar (m/s)", value=3.0, key=f"w{i}") for i in range(days)]
+            drought_score = st.number_input("Bölge kuraklık skoru (0-1)", min_value=0.0, max_value=1.0, value=0.5)
+
+            if st.button("Tahminleri Hesapla"):
+                X = []
+                for i in range(days):
+                    X.append([temps[i], humid[i], windspd[i], drought_score])
+                X = np.array(X)
+                # XGBoost ile pickle edilmiş modelin türüne göre predict/predict_proba kullanılabilir
+                try:
+                    preds = model.predict(xgb.DMatrix(X)) if "xgboost" in str(type(model)).lower() else model.predict(X)
+                    # Eğer model XGBoost ise yukarıdaki satır çalışır; sklearn modeller için else kısmı kullanılır.
+                except Exception:
+                    # fallback: model pickle ile düşük seviyede olabilir
+                    preds = model.predict(X) if hasattr(model, "predict") else model.predict_proba(X)[:, 1]
+                df = pd.DataFrame({
+                    "day": list(range(1, days+1)),
+                    "temp": temps,
+                    "humidity": humid,
+                    "wind": windspd,
+                    "drought_score": [drought_score]*days,
+                    "fire_risk": preds
+                })
+                st.write(df)
+                st.line_chart(df[["fire_risk"]])
+
+# Yayılım Simülasyonu sayfası
+elif page == "Yayılım Simülasyonu":
+    st.header("Yayılım Simülasyonu (Hücresel Otomat - Demo)")
+    st.markdown("Haritaya tıklayarak başlangıç noktası belirleyin veya koordinat girin.")
+
+    db = next(get_db())
+    munis = db.query(models.Municipality).all()
+    muni_map = {m.name: m for m in munis}
+    selected = st.selectbox("Belediye seç (opsiyonel)", ["-- Seçiniz --"] + list(muni_map.keys()))
+
+    if selected != "-- Seçiniz --":
+        muni = muni_map[selected]
+        geojson_obj = json.loads(muni.geojson)
+        center, bounds = center_from_geojson(geojson_obj)
+    else:
+        center = [39.0, 35.0]
+
+    m = folium.Map(location=center, zoom_start=8)
+    st_map = st_folium(m, width=900, height=500)
+    last_click = st_map.get("last_clicked")
+    if last_click:
+        st.success(f"Tıklanan nokta: {last_click}")
+        start_lat = last_click["lat"]
+        start_lon = last_click["lng"]
+    else:
+        start_lat = st.number_input("Başlangıç Lat", value=center[0])
+        start_lon = st.number_input("Başlangıç Lon", value=center[1])
+
+    wind_speed = st.number_input("Rüzgar hızı (m/s)", value=3.0)
+    wind_dir = st.number_input("Rüzgar yönü (deg, 0=doğu, 90=kuzey)", value=0.0)
+    drought_score = st.number_input("Kuraklık skoru (0-1)", min_value=0.0, max_value=1.0, value=0.6)
+    steps = st.slider("Adım sayısı (1 adım = 1 dakika)", 5, 30, 10)
+
+    if st.button("Simülasyonu Başlat"):
+        rows, cols = 31, 31
+        grid = np.zeros((rows, cols), dtype=int)
+        origin = (rows//2, cols//2)
+        grid[origin] = 1
+        drought_grid = np.ones((rows, cols)) * drought_score
+        frames = [grid.copy()]
+        for i in range(steps):
+            grid = spread_step(grid, wind_dir, wind_speed, drought_grid)
+            frames.append(grid.copy())
+        ts_geojson = grid_to_timestamped_geojson(frames, start_lat, start_lon, start_time=datetime.utcnow())
+        m2 = folium.Map(location=[start_lat, start_lon], zoom_start=12)
+        TimestampedGeoJson(
+            data=ts_geojson,
+            transition_time=200,
+            period="PT1M",
+            add_last_point=True,
+            loop=False,
+            auto_play=False,
+            max_speed=1
+        ).add_to(m2)
+        st_folium(m2, width=900, height=500)
+
+        sim = models.Simulation(
+            municipality_id=muni.id if selected != "-- Seçiniz --" else None,
+            start_lat=start_lat,
+            start_lon=start_lon,
+            steps=steps
+        )
+        db.add(sim)
+        db.commit()
+        db.refresh(sim)
+        summary = f"Simülasyon ID: {sim.id}\nBaşlangıç: {start_lat}, {start_lon}\nAdım sayısı: {steps}\nRüzgar: {wind_speed} m/s, yön: {wind_dir}°\nKuraklık skoru: {drought_score}"
+        out_path = str(BASE_DIR / f"sim_report_{sim.id}.pdf")
+        create_pdf_report(sim.id, summary, out_path)
+        sim.report_path = out_path
+        db.commit()
+        st.success("Simülasyon tamamlandı. PDF rapor oluşturuldu.")
+        st.download_button("Raporu İndir", data=open(out_path, "rb"), file_name=os.path.basename(out_path), mime="application/pdf")
+        if st.button("Riskli mahallelere uyarı gönder (proto)"):
+            st.success("Riskli mahallelere uyarı gönderildi!")
